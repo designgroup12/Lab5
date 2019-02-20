@@ -23,12 +23,12 @@ public class ColorClassification {
 	 */
 	private EV3ColorSensor colorSensor;
 	private SampleProvider rgbValue;
-
+	
 	/**
 	 * Float arrays for Color data
 	 */
 	private float[] colorData;
-
+	
 	/**
 	 *  Float arrays for red, green, blue, and yellow RGB Mean Values
 	 */
@@ -92,7 +92,7 @@ public class ColorClassification {
 		do {		
 			color = matchColor( fetch() );			
 			counter++;      		//the counter increased by one once we called the match color method
-			turnRight();			//turn right and get ready for another match color 
+			turnMotor();			//turn right and get ready for another match color 
 		} while (color == -1 && counter<MAX_DETECTION_TIMES);
 		
 		//turn the sensor back to its initial position
@@ -152,13 +152,13 @@ public class ColorClassification {
 	}
 	
 	
-/**
- * This method allow us to find whether one array is within interval of another
- * @param array1 
- * @param array2 
- * @param tolerace which means the max difference the value in the two arrays can have 
- * @return boolean whether the value in the two arrays are close enough
- */
+	/**
+	 * This method allow us to find whether one array is within interval of another
+	 * @param array1 
+	 * @param array2 
+	 * @param tolerace which means the max difference the value in the two arrays can have 
+	 * @return boolean whether the value in the two arrays are close enough
+	 */
 	public static boolean withinInterval(float array1[], float array2[],float tolerace) {		
 		if (Math.abs(array1[0]-array2[0])<=tolerace && Math.abs(array1[1]-array2[1])<=tolerace && Math.abs(array1[2]-array2[2])<=tolerace) {
 			return true;
@@ -170,7 +170,7 @@ public class ColorClassification {
 	/**
 	 * This method make the sensor turn right for a fixed degree
 	 */
-	public static void turnRight(){
+	public static void turnMotor(){
 		sideMotor.setSpeed(ROTATION_SPEED);
 		sideMotor.rotate(ROTATION_DEGREE);
 		
@@ -178,7 +178,7 @@ public class ColorClassification {
 	
 	/**
 	 * This method brings the sensor back to its initial position
-	 * @param counter represent how many right turn we performed
+	 * @param counter represent how many turns we performed
 	 */
 	public static void backToInitial(int counter){
 		sideMotor.setSpeed(ROTATION_SPEED);
