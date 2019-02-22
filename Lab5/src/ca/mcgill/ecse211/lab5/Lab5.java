@@ -18,9 +18,9 @@ import ca.mcgill.ecse211.lab5.UltrasonicLocalizer;
 public class Lab5 {
   // Motor Objects, and Robot related parameters
   private static final EV3LargeRegulatedMotor leftMotor =
-  new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
-  private static final EV3LargeRegulatedMotor rightMotor =
   new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
+  private static final EV3LargeRegulatedMotor rightMotor =
+  new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
   private static final Port usPort = LocalEV3.get().getPort("S1"); //port for the Ultrasonic Sensor
   private static final TextLCD lcd = LocalEV3.get().getTextLCD();
   public static final double WHEEL_RAD = 2.10;
@@ -34,7 +34,7 @@ public class Lab5 {
   public static int targetColor = 0;
   
   //colorDetector sensor related objects
-  static EV3ColorSensor colorSensor = new EV3ColorSensor(LocalEV3.get().getPort("S3"));
+  static EV3ColorSensor colorSensor = new EV3ColorSensor(LocalEV3.get().getPort("S2"));
    
   // Ultrasonic sensor related objects
   private static SampleProvider sampleProviderUS;

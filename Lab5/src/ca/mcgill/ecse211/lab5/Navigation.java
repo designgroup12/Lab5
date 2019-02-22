@@ -36,13 +36,14 @@ public class Navigation extends Thread{
   static final double rightRadius = 2.11;
   static final double track = 13.8;
   private static final int safeDistance= 10;
-  private static boolean travelling;
+  private boolean travelling;
   private boolean planning;
   private boolean found;
    static double jobx;
    static double joby;
    public boolean search;
-   static boolean avoid=false;
+  private static boolean avoid=false;
+  private static boolean back = true;
   
   
   /**
@@ -60,6 +61,7 @@ public class Navigation extends Thread{
 	this.found = false;
 	this.colorDetector = colorDetector;
 	this.search = false;
+	this.travelling = false;
 	leftMotor = leftmotor;
     rightMotor = rightmotor;
     jobx = 0;
@@ -111,13 +113,36 @@ public class Navigation extends Thread{
     	theta += 360;
     }
     turnTo(theta);
-    travelling = true;
+    this.travelling = true;
    
     leftMotor.setSpeed(FORWARD_SPEED);
     rightMotor.setSpeed(FORWARD_SPEED);
 
     leftMotor.rotate(convertDistance(leftRadius, distance), true);
     rightMotor.rotate(convertDistance(rightRadius, distance), true);
+    if (!planning) {
+    	double distance1 = Math.hypot(odometer.getXYT()[0]-jobx, odometer.getXYT()[1]-joby);
+    	while(distance1 > 2) {
+    		distance1 = Math.hypot(odometer.getXYT()[0]-jobx, odometer.getXYT()[1]-joby);
+    	}
+    } else {
+    	while(true) {
+    		if (avoid) {
+    			if (search) {
+    				if ((odometer.getXYT()[0]-jobx <= 2)||(odometer.getXYT()[1]-jobx <= 1)) {
+    					break;
+    				}
+    			}
+    		}else {
+    			double distance1 = Math.hypot(odometer.getXYT()[0]-jobx, odometer.getXYT()[1]-joby);
+    	    	if(distance1 > 2) {
+    	    		distance1 = Math.hypot(odometer.getXYT()[0]-jobx, odometer.getXYT()[1]-joby);
+    	    	}else {
+    	    		break;
+    	    	}
+    		}
+    	}
+    }
     
     travelling = false;
    
@@ -182,8 +207,8 @@ public class Navigation extends Thread{
 	        leftMotor.rotate(convertAngle(leftRadius, track, smallestAngle), true);
 	        rightMotor.rotate(-convertAngle(rightRadius, track, smallestAngle), false);
   }
-  static boolean  isNavigating(){
-	  return travelling;
+   boolean  isNavigating(){
+	  return this.travelling;
   }
   public int predictPath() {
 
@@ -237,14 +262,165 @@ public class Navigation extends Thread{
 			}
 	}
   public void RightAvoid(int color) {
+	  avoid = true;
+	  back =false;
+	  leftMotor.setSpeed(ROTATE_SPEED/2);
+	  rightMotor.setSpeed(ROTATE_SPEED/2);
+	  leftMotor.rotate(convertAngle(leftRadius, track, 90), true);
+      rightMotor.rotate(-convertAngle(rightRadius, track, 90), false);
+      leftMotor.setSpeed(FORWARD_SPEED/2);
+      rightMotor.setSpeed(FORWARD_SPEED/2);
+      leftMotor.rotate(convertDistance(leftRadius, 15), true);
+      rightMotor.rotate(convertDistance(rightRadius, 15), false);
+      leftMotor.setSpeed(ROTATE_SPEED/2);
+	  rightMotor.setSpeed(ROTATE_SPEED/2);
+	  leftMotor.rotate(-convertAngle(leftRadius, track, 90), true);
+      rightMotor.rotate(convertAngle(rightRadius, track, 90), false);
+      leftMotor.setSpeed(FORWARD_SPEED/2);
+      rightMotor.setSpeed(FORWARD_SPEED/2);
+      leftMotor.rotate(convertDistance(leftRadius, 15), true);
+      rightMotor.rotate(convertDistance(rightRadius, 15), false);
+      if (color == -1) {
+    	  leftMotor.setSpeed(ROTATE_SPEED/2);
+    	  rightMotor.setSpeed(ROTATE_SPEED/2);
+    	  leftMotor.rotate(-convertAngle(leftRadius, track, 90), true);
+          rightMotor.rotate(convertAngle(rightRadius, track, 90), false);
+          color = colorDetector.findColor();
+    	  if (color == targetColour) {
+    	    Sound.beep();
+    	    this.found = true;
+    	    return;
+    	  }else {
+    	    Sound.twoBeeps();
+    	  }
+          if (search == true && ((odometer.getXYT()[0]-jobx <= 2)||(odometer.getXYT()[0]-jobx <= 2))) {
+        	  leftMotor.setSpeed(ROTATE_SPEED/2);
+        	  rightMotor.setSpeed(ROTATE_SPEED/2);
+        	  leftMotor.rotate(convertAngle(leftRadius, track, 90), true);
+              rightMotor.rotate(-convertAngle(rightRadius, track, 90), false);
+              leftMotor.setSpeed(FORWARD_SPEED/2);
+              rightMotor.setSpeed(FORWARD_SPEED/2);
+              leftMotor.rotate(convertDistance(leftRadius, 15), true);
+              rightMotor.rotate(convertDistance(rightRadius, 15), false);
+              leftMotor.setSpeed(ROTATE_SPEED/2);
+        	  rightMotor.setSpeed(ROTATE_SPEED/2);
+        	  leftMotor.rotate(-convertAngle(leftRadius, track, 90), true);
+              rightMotor.rotate(convertAngle(rightRadius, track, 90), false);
+              leftMotor.setSpeed(FORWARD_SPEED/2);
+              rightMotor.setSpeed(FORWARD_SPEED/2);
+              leftMotor.rotate(convertDistance(leftRadius, 15), true);
+              rightMotor.rotate(convertDistance(rightRadius, 15), false);
+              leftMotor.setSpeed(ROTATE_SPEED/2);
+        	  rightMotor.setSpeed(ROTATE_SPEED/2);
+        	  leftMotor.rotate(convertAngle(leftRadius, track, 90), true);
+              rightMotor.rotate(-convertAngle(rightRadius, track, 90), false);
+              back = true;
+          }
+      }else {
+    	  if (search == true && ((odometer.getXYT()[0]-jobx <= 2)||(odometer.getXYT()[0]-jobx <= 2))) {
+              leftMotor.setSpeed(FORWARD_SPEED/2);
+              rightMotor.setSpeed(FORWARD_SPEED/2);
+              leftMotor.rotate(convertDistance(leftRadius, 15), true);
+              rightMotor.rotate(convertDistance(rightRadius, 15), false);
+              leftMotor.setSpeed(ROTATE_SPEED/2);
+        	  rightMotor.setSpeed(ROTATE_SPEED/2);
+        	  leftMotor.rotate(-convertAngle(leftRadius, track, 90), true);
+              rightMotor.rotate(convertAngle(rightRadius, track, 90), false);
+              leftMotor.setSpeed(FORWARD_SPEED/2);
+              rightMotor.setSpeed(FORWARD_SPEED/2);
+              leftMotor.rotate(convertDistance(leftRadius, 15), true);
+              rightMotor.rotate(convertDistance(rightRadius, 15), false);
+              leftMotor.setSpeed(ROTATE_SPEED/2);
+        	  rightMotor.setSpeed(ROTATE_SPEED/2);
+        	  leftMotor.rotate(convertAngle(leftRadius, track, 90), true);
+              rightMotor.rotate(-convertAngle(rightRadius, track, 90), false);
+              back = true;
+    	  }
+      }
+      avoid = false;
+      
 	  
 	}
 	
 	
 	public void leftAvoid(int color) {
-		
+		back  = false;
+		avoid = true;
+		  leftMotor.setSpeed(ROTATE_SPEED/2);
+		  rightMotor.setSpeed(ROTATE_SPEED/2);
+		  leftMotor.rotate(-convertAngle(leftRadius, track, 90), true);
+	      rightMotor.rotate(convertAngle(rightRadius, track, 90), false);
+	      leftMotor.setSpeed(FORWARD_SPEED/2);
+	      rightMotor.setSpeed(FORWARD_SPEED/2);
+	      leftMotor.rotate(convertDistance(leftRadius, 15), true);
+	      rightMotor.rotate(convertDistance(rightRadius, 15), false);
+	      leftMotor.setSpeed(ROTATE_SPEED/2);
+		  rightMotor.setSpeed(ROTATE_SPEED/2);
+		  leftMotor.rotate(convertAngle(leftRadius, track, 90), true);
+	      rightMotor.rotate(-convertAngle(rightRadius, track, 90), false);
+	      leftMotor.setSpeed(FORWARD_SPEED/2);
+	      rightMotor.setSpeed(FORWARD_SPEED/2);
+	      leftMotor.rotate(convertDistance(leftRadius, 15), true);
+	      rightMotor.rotate(convertDistance(rightRadius, 15), false);
+	      if (color == -1) {
+	    	  leftMotor.setSpeed(ROTATE_SPEED/2);
+	    	  rightMotor.setSpeed(ROTATE_SPEED/2);
+	    	  leftMotor.rotate(convertAngle(leftRadius, track, 90), true);
+	          rightMotor.rotate(-convertAngle(rightRadius, track, 90), false);
+	          color = colorDetector.findColor();
+	    	  if (color == targetColour) {
+	    	    Sound.beep();
+	    	    this.found = true;
+	    	    return;
+	    	  }else {
+	    	    Sound.twoBeeps();
+	    	  }
+	          if (search == true && ((odometer.getXYT()[0]-jobx <= 2)||(odometer.getXYT()[0]-jobx <= 2))) {
+	        	  leftMotor.setSpeed(ROTATE_SPEED/2);
+	        	  rightMotor.setSpeed(ROTATE_SPEED/2);
+	        	  leftMotor.rotate(-convertAngle(leftRadius, track, 90), true);
+	              rightMotor.rotate(convertAngle(rightRadius, track, 90), false);
+	              leftMotor.setSpeed(FORWARD_SPEED/2);
+	              rightMotor.setSpeed(FORWARD_SPEED/2);
+	              leftMotor.rotate(convertDistance(leftRadius, 15), true);
+	              rightMotor.rotate(convertDistance(rightRadius, 15), false);
+	              leftMotor.setSpeed(ROTATE_SPEED/2);
+	        	  rightMotor.setSpeed(ROTATE_SPEED/2);
+	        	  leftMotor.rotate(convertAngle(leftRadius, track, 90), true);
+	              rightMotor.rotate(-convertAngle(rightRadius, track, 90), false);
+	              leftMotor.setSpeed(FORWARD_SPEED/2);
+	              rightMotor.setSpeed(FORWARD_SPEED/2);
+	              leftMotor.rotate(convertDistance(leftRadius, 15), true);
+	              rightMotor.rotate(convertDistance(rightRadius, 15), false);
+	              leftMotor.setSpeed(ROTATE_SPEED/2);
+	        	  rightMotor.setSpeed(ROTATE_SPEED/2);
+	        	  leftMotor.rotate(-convertAngle(leftRadius, track, 90), true);
+	              rightMotor.rotate(convertAngle(rightRadius, track, 90), false);
+	              back = true;
+	          }
+	      }else {
+	    	  if (search == true && ((odometer.getXYT()[0]-jobx <= 2)||(odometer.getXYT()[0]-jobx <= 2))) {
+	              leftMotor.setSpeed(FORWARD_SPEED/2);
+	              rightMotor.setSpeed(FORWARD_SPEED/2);
+	              leftMotor.rotate(convertDistance(leftRadius, 15), true);
+	              rightMotor.rotate(convertDistance(rightRadius, 15), false);
+	              leftMotor.setSpeed(ROTATE_SPEED/2);
+	        	  rightMotor.setSpeed(ROTATE_SPEED/2);
+	        	  leftMotor.rotate(convertAngle(leftRadius, track, 90), true);
+	              rightMotor.rotate(-convertAngle(rightRadius, track, 90), false);
+	              leftMotor.setSpeed(FORWARD_SPEED/2);
+	              rightMotor.setSpeed(FORWARD_SPEED/2);
+	              leftMotor.rotate(convertDistance(leftRadius, 15), true);
+	              rightMotor.rotate(convertDistance(rightRadius, 15), false);
+	              leftMotor.setSpeed(ROTATE_SPEED/2);
+	        	  rightMotor.setSpeed(ROTATE_SPEED/2);
+	        	  leftMotor.rotate(-convertAngle(leftRadius, track, 90), true);
+	              rightMotor.rotate(convertAngle(rightRadius, track, 90), false);
+	              back = true;
+	    	  }
+		avoid = false;
 	}
-	
+	}
 
 
   private static int convertDistance(double radius, double distance) {
@@ -269,17 +445,58 @@ public class Navigation extends Thread{
 			  turnTo(270);
 		  }
 		  if (SensorPoller.usData[0]<(Rx*tileSize)) {
+			  back = true;
+			  this.search = true;
 			  if(firstSide) {
 				  travelTo(this.URx*tileSize,(this.LLy+1)*tileSize);
 			  }else {
 				  travelTo(this.LLx*tileSize,(this.LLy+1)*tileSize);
 			  }
-			  firstSide = false;
+			 firstSide = !firstSide;
 		  }
+		  if (!back) {
+			  if (firstSide) {
+				  leftMotor.setSpeed(ROTATE_SPEED/2);
+	        	  rightMotor.setSpeed(ROTATE_SPEED/2);
+	        	  leftMotor.rotate(-convertAngle(leftRadius, track, 90), true);
+	              rightMotor.rotate(convertAngle(rightRadius, track, 90), false);
+	              leftMotor.setSpeed(FORWARD_SPEED/2);
+	              rightMotor.setSpeed(FORWARD_SPEED/2);
+	              leftMotor.rotate(convertDistance(leftRadius, 15), true);
+	              rightMotor.rotate(convertDistance(rightRadius, 15), false);
+	              leftMotor.setSpeed(ROTATE_SPEED/2);
+	        	  rightMotor.setSpeed(ROTATE_SPEED/2);
+	        	  leftMotor.rotate(-convertAngle(leftRadius, track, 90), true);
+	              rightMotor.rotate(convertAngle(rightRadius, track, 90), false);
+	              leftMotor.setSpeed(FORWARD_SPEED/2);
+	              rightMotor.setSpeed(FORWARD_SPEED/2);
+	              leftMotor.rotate(convertDistance(leftRadius, 15), true);
+	              rightMotor.rotate(convertDistance(rightRadius, 15), false);
+			  }else {
+				  leftMotor.setSpeed(ROTATE_SPEED/2);
+	        	  rightMotor.setSpeed(ROTATE_SPEED/2);
+	        	  leftMotor.rotate(convertAngle(leftRadius, track, 90), true);
+	              rightMotor.rotate(-convertAngle(rightRadius, track, 90), false);
+	              leftMotor.setSpeed(FORWARD_SPEED/2);
+	              rightMotor.setSpeed(FORWARD_SPEED/2);
+	              leftMotor.rotate(convertDistance(leftRadius, 15), true);
+	              rightMotor.rotate(convertDistance(rightRadius, 15), false);
+	              leftMotor.setSpeed(ROTATE_SPEED/2);
+	        	  rightMotor.setSpeed(ROTATE_SPEED/2);
+	        	  leftMotor.rotate(convertAngle(leftRadius, track, 90), true);
+	              rightMotor.rotate(-convertAngle(rightRadius, track, 90), false);
+	              leftMotor.setSpeed(FORWARD_SPEED/2);
+	              rightMotor.setSpeed(FORWARD_SPEED/2);
+	              leftMotor.rotate(convertDistance(leftRadius, 15), true);
+	              rightMotor.rotate(convertDistance(rightRadius, 15), false);
+			  }
+		  }
+		 this.search = false; 
 		  if (this.found) {
 			  break;
 		  }
 	  }
+	  planning = false;
 	  travelTo(URx*tileSize,URy*tileSize);
   }
   public void horizontalPlanning(int Rx,int Ry) throws OdometerExceptions {
@@ -297,17 +514,58 @@ public class Navigation extends Thread{
 			  turnTo(180);
 		  }
 		  if (SensorPoller.usData[0]<(Rx*tileSize)) {
+			  back = true;
+			  this.search = true;
 			  if(firstSide) {
 				  travelTo((this.LLx+1)*tileSize,this.URy*tileSize);
 			  }else {
 				  travelTo((this.LLx+1)*tileSize,this.LLy*tileSize);
 			  }
-			  firstSide = false;
+			  firstSide = !firstSide;
 		  }
+		  if (!back) {
+			  if (firstSide) {
+				  leftMotor.setSpeed(ROTATE_SPEED/2);
+	        	  rightMotor.setSpeed(ROTATE_SPEED/2);
+	        	  leftMotor.rotate(convertAngle(leftRadius, track, 90), true);
+	              rightMotor.rotate(-convertAngle(rightRadius, track, 90), false);
+	              leftMotor.setSpeed(FORWARD_SPEED/2);
+	              rightMotor.setSpeed(FORWARD_SPEED/2);
+	              leftMotor.rotate(convertDistance(leftRadius, 15), true);
+	              rightMotor.rotate(convertDistance(rightRadius, 15), false);
+	              leftMotor.setSpeed(ROTATE_SPEED/2);
+	        	  rightMotor.setSpeed(ROTATE_SPEED/2);
+	        	  leftMotor.rotate(convertAngle(leftRadius, track, 90), true);
+	              rightMotor.rotate(-convertAngle(rightRadius, track, 90), false);
+	              leftMotor.setSpeed(FORWARD_SPEED/2);
+	              rightMotor.setSpeed(FORWARD_SPEED/2);
+	              leftMotor.rotate(convertDistance(leftRadius, 15), true);
+	              rightMotor.rotate(convertDistance(rightRadius, 15), false);
+			  }else {
+				  leftMotor.setSpeed(ROTATE_SPEED/2);
+	        	  rightMotor.setSpeed(ROTATE_SPEED/2);
+	        	  leftMotor.rotate(-convertAngle(leftRadius, track, 90), true);
+	              rightMotor.rotate(convertAngle(rightRadius, track, 90), false);
+	              leftMotor.setSpeed(FORWARD_SPEED/2);
+	              rightMotor.setSpeed(FORWARD_SPEED/2);
+	              leftMotor.rotate(convertDistance(leftRadius, 15), true);
+	              rightMotor.rotate(convertDistance(rightRadius, 15), false);
+	              leftMotor.setSpeed(ROTATE_SPEED/2);
+	        	  rightMotor.setSpeed(ROTATE_SPEED/2);
+	        	  leftMotor.rotate(-convertAngle(leftRadius, track, 90), true);
+	              rightMotor.rotate(convertAngle(rightRadius, track, 90), false);
+	              leftMotor.setSpeed(FORWARD_SPEED/2);
+	              rightMotor.setSpeed(FORWARD_SPEED/2);
+	              leftMotor.rotate(convertDistance(leftRadius, 15), true);
+	              rightMotor.rotate(convertDistance(rightRadius, 15), false);
+			  }
+		  }
+		  this.search = false;
 		  if (this.found) {
 			  break;
 		  }
 	  }
+	  planning = false;
 	  travelTo(URx*tileSize,URy*tileSize);
   }
   public void run() {
@@ -318,7 +576,7 @@ public class Navigation extends Thread{
 		e1.printStackTrace();
 	}
 	  int Rx = this.URx - this.LLx;
-	  int Ry = this.URx - this.LLx;
+	  int Ry = this.URy - this.LLy;
 	  if (Rx <= Ry) {
 		  try {
 		  verticalPlanning(Rx,Ry);

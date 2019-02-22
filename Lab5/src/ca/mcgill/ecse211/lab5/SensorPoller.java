@@ -56,9 +56,7 @@ public class SensorPoller extends Thread {
 		      realDistance = distance;
 		    }
 	      
-	      if((realDistance < maxDistance)&&Navigation.isNavigating()) {
-	    	  leftMotor.stop();
-	    	  rightMotor.stop();
+	      if((realDistance < maxDistance)&& navigation.isNavigating()) {
 	    	  try {
 				navigation.avoid(realDistance);
 			} catch (OdometerExceptions e) {

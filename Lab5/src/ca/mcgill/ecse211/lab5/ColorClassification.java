@@ -11,7 +11,7 @@ public class ColorClassification {
 	 * setup the motor for the sensor
 	 */
 	private static final EV3LargeRegulatedMotor sideMotor = 
-			new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
+			new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 	
 	/**
 	 * Light sensor object

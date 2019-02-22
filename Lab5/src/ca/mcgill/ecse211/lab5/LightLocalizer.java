@@ -31,7 +31,7 @@ public class LightLocalizer {
   private  SensorMode sampleProviderLight;
   EV3ColorSensor lightSensor;
   float[] lightValues;
-  private static final Port colorPort = LocalEV3.get().getPort("S3");
+  private static final Port colorPort = LocalEV3.get().getPort("S4");
 	
   private static double distanceLS = 12.0; //distance between the light sensor and the center of rotation: change in function of robot
   private static final double tileSize = 30.48;	
