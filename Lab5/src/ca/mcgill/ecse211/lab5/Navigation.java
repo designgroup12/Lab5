@@ -34,7 +34,7 @@ public class Navigation extends Thread{
   private ColorClassification colorDetector;
   static final double leftRadius = 2.11;
   static final double rightRadius = 2.11;
-  static final double track = 13.8;
+  static final double track = 13.6;
   private static final int safeDistance= 10;
   private boolean travelling;
   private boolean planning;
@@ -594,4 +594,5 @@ public class Navigation extends Thread{
 			}
 	  }
   }
+ 
 }

@@ -131,7 +131,6 @@ public class ColorClassification {
 	}
 	
 	
-	
 	/**
 	 * This method allow us to get the normalized RGB data from initial data
 	 * @param array of RGB initial data 
@@ -179,7 +178,6 @@ public class ColorClassification {
 		sideMotor.setSpeed(ROTATION_SPEED);
 		sideMotor.rotate(-ROTATION_DEGREE*counter);
 	}
-	
 }
 
 
