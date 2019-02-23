@@ -40,7 +40,7 @@ public class ColorClassification {
 	/**
 	 *  tolerance interval for classifying a color
 	 */
-	private static final float ERROR=0.08f;
+	private static final float ERROR=0.1f;
 	
 	/**
 	 * the speed of the rotation of the sensor
@@ -51,12 +51,12 @@ public class ColorClassification {
 	/**
 	 * the angle of the rotation of the sensor
 	 */
-	private static final int ROTATION_DEGREE=15;
+	private static final int ROTATION_DEGREE=2;
 	
 	/**
 	 * the max time of detection we will perform if we get a unmatched color
 	 */
-	private static final int MAX_DETECTION_TIMES=3;
+	private static final int MAX_DETECTION_TIMES= 10;
 	
 	/**
 	 * Constructor
@@ -74,7 +74,7 @@ public class ColorClassification {
 	 * @return (integer representing the color)
 	 */
 	public int findColor() {
-		
+		System.out.println("Color");
 		// a integer representing the color we detect
 		//-1 means no match color find
 		// 0 means red, 1 means green, 2 means blue and 3 means yellow
@@ -92,7 +92,7 @@ public class ColorClassification {
 		
 		//turn the sensor back to its initial position
 		backToInitial(counter);
-		
+		System.out.println(color);
 		//return the color we detect
 		return color;		
 	}
@@ -117,15 +117,25 @@ public class ColorClassification {
 	public static int matchColor(float array[]) {
 		
 		//store the normalized RGB data in the array
-		float nomalizedColor[]=normalize(array);
+		float normalizedColor[]=normalize(array);
+		if((normalizedColor[0] > 2*normalizedColor[1])&&(normalizedColor[0] > 2*normalizedColor[2])) {
+			return 0;
+		}else if((normalizedColor[1] > 2*normalizedColor[0])&&(normalizedColor[1] > 2*normalizedColor[2])) {
+			return 1;
+		}else if((!(normalizedColor[2] > 2*normalizedColor[1]))&&(normalizedColor[2] > 2*normalizedColor[0])) {
+			return 2;
+		}else if((!(normalizedColor[0] > 2*normalizedColor[1]))&&(normalizedColor[0] > 2*normalizedColor[2])) {
+			return 3;
+		}
+		
 
 		//loop through the color list to see if they matches
-		for (int i=0; i<4; i++) {
+		/*for (int i=0; i<4; i++) {
 			//see if the value of the normalized RGB data and our pre-stored data is within a tolerable interval
-			if (withinInterval(nomalizedColor,COLOR_LIST[i],ERROR)){
+			if (withinInterval(normalizedColor,COLOR_LIST[i],ERROR)){
 				return i;
 			}
-		}
+		}*/
 		//if does not match any of the colors, return -1
 		return -1;
 	}
@@ -167,7 +177,7 @@ public class ColorClassification {
 	 */
 	public static void turnRight(){
 		sideMotor.setSpeed(ROTATION_SPEED);
-		sideMotor.rotate(ROTATION_DEGREE);
+		sideMotor.rotate(-ROTATION_DEGREE);
 		
 	}
 	
@@ -177,7 +187,7 @@ public class ColorClassification {
 	 */
 	public static void backToInitial(int counter){
 		sideMotor.setSpeed(ROTATION_SPEED);
-		sideMotor.rotate(-ROTATION_DEGREE*counter);
+		sideMotor.rotate(ROTATION_DEGREE*counter);
 	}
 	
 }

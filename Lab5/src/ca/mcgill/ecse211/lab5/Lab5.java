@@ -23,15 +23,15 @@ public class Lab5 {
   new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
   private static final Port usPort = LocalEV3.get().getPort("S1"); //port for the Ultrasonic Sensor
   private static final TextLCD lcd = LocalEV3.get().getTextLCD();
-  public static final double WHEEL_RAD = 2.10;
-  public static final double TRACK = 13.45 ;
+  public static final double WHEEL_RAD = 2.11;
+  public static final double TRACK = 13.6 ;
   public static final double tileSize = 30.48;
   
   public static final int[] LL = {3,3};
   public static final int[] UR = {6,6};
   public static final int SC  = 0;
   public static final String[] colors = {"red","green","blue","yellow"};
-  public static int targetColor = 0;
+  public static int targetColor = 2;
   
   //colorDetector sensor related objects
   static EV3ColorSensor colorSensor = new EV3ColorSensor(LocalEV3.get().getPort("S2"));
@@ -69,13 +69,19 @@ public class Lab5 {
       sampleProviderUS = usSensor.getMode("Distance");
       usValues = new float[sampleProviderUS.sampleSize()];
       for (int i = 0 ; i < 5;i++) {
+    	  lcd.clear();
     	sampleProviderUS.fetchSample(usValues, 0);
     	while(usValues[0] > 10) {
     	  sampleProviderUS.fetchSample(usValues, 0);
     	}
     	  color = colorDetector.findColor();
     	  lcd.drawString("object detected", 0, 1);
-    	  lcd.drawString(colors[color], 0, 2);
+    	  if(color<0) {
+    		  lcd.drawString("Failure", 0, 2);
+    	  }
+    	  else {
+    		  lcd.drawString(colors[color], 0, 2);
+    	  }  
     	  if (Button.waitForAnyPress() == Button.ID_ESCAPE){
     	    System.exit(0);
     	  }
@@ -90,11 +96,11 @@ public class Lab5 {
       Display odometryDisplay = new Display(lcd); // No need to change
       
       //setup ultrasonic sensor
-      usSensor = new EV3UltrasonicSensor(usPort);
-      sampleProviderUS = usSensor.getMode("Distance");
-      usValues = new float[sampleProviderUS.sampleSize()];
+     // usSensor = new EV3UltrasonicSensor(usPort);
+      //sampleProviderUS = usSensor.getMode("Distance");
+      //usValues = new float[sampleProviderUS.sampleSize()];
   	  //construct  a UltrasonicLocalizer	
-      UltrasonicLocalizer usl = new UltrasonicLocalizer(sampleProviderUS, usValues, leftMotor, rightMotor, SC);
+     // UltrasonicLocalizer usl = new UltrasonicLocalizer(sampleProviderUS, usValues, leftMotor, rightMotor, SC);
       
       //setup threads
       Thread odoThread = new Thread(odometer);
@@ -103,19 +109,21 @@ public class Lab5 {
       odoDisplayThread.start();
       
       //Do localization with ultrasonic sensor    	
-      usl.doLocalization();
+      //usl.doLocalization();
       
       //wait for press do see angle
-      Button.waitForAnyPress();
-      usSensor.close();
+     // Button.waitForAnyPress();
+      //usSensor.close();
       //set up the light 
-      LightLocalizer ll = new LightLocalizer( leftMotor, rightMotor,SC);
+      //LightLocalizer ll = new LightLocalizer( leftMotor, rightMotor,SC);
       //Do localization with light sensor
-      ll.doLocalization();
+      //ll.doLocalization();
       usSensor = new EV3UltrasonicSensor(usPort);
       sampleProviderUS = usSensor.getMode("Distance");
       usValues = new float[sampleProviderUS.sampleSize()];
       ColorClassification colorDetector = new ColorClassification(colorSensor);
+      odometer.setXYT(3*tileSize,4*tileSize, 0);
+      Navigation.odometer = odometer;
       Navigation navigation = new Navigation(leftMotor,rightMotor,targetColor,UR[0],LL[0],UR[1],LL[1],colorDetector);
       SensorPoller usPoller = new SensorPoller(usSensor,usValues,leftMotor,rightMotor,navigation);
      Thread usThread = new Thread(usPoller);

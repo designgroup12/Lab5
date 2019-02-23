@@ -9,7 +9,7 @@ public class SensorPoller extends Thread {
 	  private SampleProvider us;
 	  private Navigation navigation;
 	  private int maxDistance = 10;
-	  private double realDistance;
+	  public static double realDistance;
 	  static boolean obstacle = false;
 	  private static int FILTER_OUT = 5;
 	  private int filterControl = 0; 
@@ -57,15 +57,11 @@ public class SensorPoller extends Thread {
 		    }
 	      
 	      if((realDistance < maxDistance)&& navigation.isNavigating()) {
-	    	  try {
-				navigation.avoid(realDistance);
-			} catch (OdometerExceptions e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			   navigation.obstacle = true; 
 			}
 	    	 // Lab3.nextPoint--;
 	    	  //obstacle = false;
-	      }
+	      
 	      
 	      try {
 	        Thread.sleep(50);
@@ -75,10 +71,10 @@ public class SensorPoller extends Thread {
 	      
 	      
 	      
-	    }
+	  }
 	  }
 
-	}
+}
 
 
 
