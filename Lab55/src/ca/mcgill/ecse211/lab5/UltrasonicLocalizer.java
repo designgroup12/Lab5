@@ -11,7 +11,7 @@ import lejos.robotics.SampleProvider;
 public class UltrasonicLocalizer {
 	
 	
-  private static int ROTATE_SPEED = 50;
+  private static int ROTATE_SPEED = 80;
 	
 	
   private static Odometer odo;
@@ -69,7 +69,7 @@ public class UltrasonicLocalizer {
 		      rightMotor.setSpeed(ROTATE_SPEED);
 		      
 		      //rotate until the robots doesn't see a wall
-		      while(getDistance() < wallDistance + 3) {
+		      while(getDistance() < wallDistance + 3.5) {
 		    	  leftMotor.backward();
 		    	  rightMotor.forward();
 		      }
@@ -80,6 +80,8 @@ public class UltrasonicLocalizer {
 		    	  leftMotor.backward();
 		    	  rightMotor.forward();
 		      }
+		      leftMotor.stop(true);
+		      rightMotor.stop();
 		      alpha = odo.getXYT()[2];
 		      Sound.beep(); //robot sees a wall
 		      
@@ -87,7 +89,7 @@ public class UltrasonicLocalizer {
 		      
 		      //change direction
 		      //rotate until sees no wall
-		      while(getDistance() < wallDistance + 3) {
+		      while(getDistance() < wallDistance + 3.5) {
 		    	  leftMotor.forward();
 		    	  rightMotor.backward();
 		      }
@@ -99,7 +101,8 @@ public class UltrasonicLocalizer {
 		    	  leftMotor.forward();
 		    	  rightMotor.backward();
 		      }
-		      
+		      leftMotor.stop(true);
+		      rightMotor.stop();
 		      Sound.beep(); //sees a wall
 		     
 		      beta = odo.getXYT()[2];
@@ -126,14 +129,14 @@ public class UltrasonicLocalizer {
 		      if(orientation <= 180) {
 		    	leftMotor.setSpeed(ROTATE_SPEED);
 		  		rightMotor.setSpeed(ROTATE_SPEED);
-		  		leftMotor.rotate(-convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, orientation+3), true);
-		  		rightMotor.rotate(convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, orientation+3), false);
+		  		leftMotor.rotate(-convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, orientation-1), true);
+		  		rightMotor.rotate(convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, orientation-1), false);
 		      }else {
 		    	  orientation = 360 - orientation;
 		    	  leftMotor.setSpeed(ROTATE_SPEED);
 		    	  rightMotor.setSpeed(ROTATE_SPEED);
-			  	  leftMotor.rotate(convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, orientation-3), true);
-			  	  rightMotor.rotate(-convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, orientation-3), false);
+			  	  leftMotor.rotate(convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, orientation+2), true);
+			  	  rightMotor.rotate(-convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, orientation+2), false);
 			      
 		      }
 		      odo.setTheta((0 + 360 -this.SC*90)%360);

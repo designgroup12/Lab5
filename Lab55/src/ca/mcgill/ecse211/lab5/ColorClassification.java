@@ -172,6 +172,7 @@ public class ColorClassification {
  */
 	public static boolean withinInterval(float array1[], float array2[],float tolerace) {		
 		if (Math.abs(array1[0]-array2[0])<=tolerace && Math.abs(array1[1]-array2[1])<=tolerace && Math.abs(array1[2]-array2[2])<=tolerace) {
+			System.out.println(array1[0]+" "+array1[1]+" "+array1[2] );
 			return true;
 		}
 		return false;

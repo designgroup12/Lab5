@@ -25,15 +25,16 @@ public class Lab5 {
   new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
   private static final Port usPort = LocalEV3.get().getPort("S1"); //port for the Ultrasonic Sensor
   private static final TextLCD lcd = LocalEV3.get().getTextLCD();
+  static EV3GyroSensor gySensor;
   public static final double WHEEL_RAD = 2.10;
   public static final double TRACK = 13.42 ;
   public static final double tileSize = 30.48;
   
-  public static final int[] LL = {3,3};
-  public static final int[] UR = {6,6};
+  public static final int[] LL = {2,2};
+  public static final int[] UR = {5,5};
   public static final int SC  = 0;
   public static final String[] colors = {"red","green","blue","yellow"};
-  public static int targetColor = 2;
+  public static int targetColor = 1;
   
   //colorDetector sensor related objects
   static EV3ColorSensor colorSensor = new EV3ColorSensor(LocalEV3.get().getPort("S2"));
@@ -113,24 +114,20 @@ public class Lab5 {
       
       //Do localization with ultrasonic sensor    	
       usl.doLocalization();
-      EV3GyroSensor gySensor = new EV3GyroSensor(SensorPort.S4);
+      gySensor = new EV3GyroSensor(SensorPort.S4);
       SampleProvider gyAngle = gySensor.getAngleMode();
       float[] angles = new float[gyAngle.sampleSize()];
       //wait for press do see angle
      // Button.waitForAnyPress();
-      usSensor.close();
       //set up the light
       gySensor.reset();
       LightLocalizer ll = new LightLocalizer( leftMotor, rightMotor,SC,gyAngle,angles);
       //Do localization with light sensor
       ll.doLocalization();
       Button.waitForAnyPress();
-      usSensor = new EV3UltrasonicSensor(usPort);
-      sampleProviderUS = usSensor.getMode("Distance");
-      usValues = new float[sampleProviderUS.sampleSize()];
       ColorClassification colorDetector = new ColorClassification(colorSensor);
       Navigation.odometer = odometer;
-      Navigation navigation = new Navigation(leftMotor,rightMotor,targetColor,UR[0],LL[0],UR[1],LL[1],colorDetector,gyAngle,angles,sampleProviderUS,usValues);
+      Navigation navigation = new Navigation(leftMotor,rightMotor,targetColor,UR[0],LL[0],UR[1],LL[1],colorDetector,gyAngle,angles,sampleProviderUS,usValues,ll);
       //SensorPoller usPoller = new SensorPoller(usSensor,usValues,leftMotor,rightMotor,navigation);
      //Thread usThread = new Thread(usPoller);
      //usThread.start();

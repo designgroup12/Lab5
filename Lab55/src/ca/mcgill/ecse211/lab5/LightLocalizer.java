@@ -13,11 +13,11 @@ import lejos.robotics.SampleProvider;
 
 public class LightLocalizer {
 	
-  private static int ROTATE_SPEED = 65; // turning speed of the car
-  private static int FORWARD_SPEED = 90;// forward speed of the car
+  private static int ROTATE_SPEED = 120; // turning speed of the car
+  private static int FORWARD_SPEED = 120;// forward speed of the car
   public static float curColor = 0;// the reflection value received by the light sensor
   private int j = 0;  //the number of filtered value that light sensor received 
-  private int size = 12;// the size of array of results for storing the reflection value
+  private int size = 2;// the size of array of results for storing the reflection value
   private float[ ] results ;  // the array of storing the reflection value to make the comparison to check if meet the deadline
   static Odometer odo; // the odometer 
   
@@ -35,6 +35,10 @@ public class LightLocalizer {
 	
   private static double distanceLS = 11.4; //distance between the light sensor and the center of rotation: change in function of robot
   private static final double tileSize = 30.48;	
+  private static final int LLx = Lab5.LL[0];
+  private static final int LLy = Lab5.LL[1];
+  private static double oldValues = 0;
+  private static double newValues = 0;
   
   private SampleProvider gyAngles;
    private float[] angles;
@@ -139,8 +143,8 @@ public class LightLocalizer {
     finalx = Math.cos(Rx)*distanceLS;
     finaly = Math.cos(Ry)*distanceLS;
 	if (this.SC == 0) {	  
-      odo.setX(tileSize-finalx+1);
-      odo.setY(tileSize-finaly);
+      odo.setX(tileSize-finalx+0.5);
+      odo.setY(tileSize-finaly-1);
 	}else if (this.SC == 1) {
 	  odo.setX(7*tileSize + finalx);
 	  odo.setY(tileSize-finaly);
@@ -152,12 +156,108 @@ public class LightLocalizer {
 	  odo.setX(tileSize - finalx);
 	}
     //travel to 0,0
-     gotoOrigin();
+     //gotoOrigin();
     //close the light sensor;
-    lightSensor.close();
+    //lightSensor.close();
     //go to the 
 		
   }
+  public void doLocalizationStart() {//
+	    int nLines = 0;// number of line passed during the spining
+	    boolean seenLine = false; // the boolean value to avoid reading the black line twice 
+	    double angle = 0;
+	    double x1 = 0; // the first angle value of the horizontal line
+	    double x2 = 0; // the second angle value of the horizontal line
+	    double y1 = 0; // the first angle value of the vertical line
+	    double y2 = 0; // the second angle value of the vertical line
+	    double finalx; // the calculated x coordinate value of the position
+	    double finaly; // the calculated x coordinate value of the position
+	    double distance;// the distance between the position and the origin
+	    double Rx;// the radian value of delta thetax
+	    double Ry;//the radian  value of delta thetay
+			 
+	    for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] {leftMotor, rightMotor}) {
+	      motor.stop();
+	      motor.setAcceleration(3000);
+	    }
+
+	    // Sleep for 2 seconds
+	    try {
+	      Thread.sleep(2000);
+	    } catch (InterruptedException e) {
+	      // There is nothing to be done here
+	    }
+	    closeToOrigin();
+			  
+	    //robot spins 360
+	    getData();
+	    while (nLines < 4) {  
+	      carSetSpeed(ROTATE_SPEED);
+	      carRotate();
+	      getData();
+	      if (meetBlacklineWithoutGet() && !seenLine) {
+	        angle = gyroFetch();
+	        Sound.beep();
+	        seenLine = true;
+	        nLines ++;
+					  
+	        //makes sure angle is from the origin 
+	        if(angle > 360) {
+	          angle = angle % 360;
+	        }
+	       //check the angle is on x-axis or y-axis and avoid fetch same value
+	        if((angle - 0 < 50) || (360 - angle <50)) {
+	          x1 = angle;
+	        }
+	        else if(Math.abs(angle - 90) < 50) {
+	          y1 = angle;
+	        }
+	        else if (Math.abs(angle-180) < 50) {
+	          x2 = angle;
+	        }
+	        else if (Math.abs(angle-270) < 50) {
+	          y2 = angle;
+	        }
+	      initializeResults();			  		  
+	      }else {
+	        seenLine = false;
+	      }
+				  
+	    }
+			  
+	    //stop motors
+	    carStop();
+	    Rx = Math.toRadians((x2-x1)/2);
+	    Ry = Math.toRadians((y2-y1)/2);
+	    //set final x and y coordinate of robot
+	    finalx = Math.cos(Rx)*distanceLS;
+	    finaly = Math.cos(Ry)*distanceLS;
+	    odo.setX(LLx*tileSize-finalx+0.5);
+	    odo.setY(LLy*tileSize-finaly);
+		/*if (this.SC == 0) {	  
+	      odo.setX(tileSize-finalx+1);
+	      odo.setY(tileSize-finaly);
+		}else if (this.SC == 1) {
+		  odo.setX(7*tileSize + finalx);
+		  odo.setY(tileSize-finaly);
+		}else if (this.SC == 2) {
+		  odo.setX(7*tileSize + finalx);
+		  odo.setY(7*tileSize + finaly);
+		}else {
+		  odo.setY(7*tileSize + finaly);
+		  odo.setX(tileSize - finalx);
+		}*/
+	    //travel to 0,0
+	   // travelTo(LLx*tileSize,LLy*tileSize);
+	    //close the light sensor;
+	    lightSensor.close();
+	    //leftMotor.rotate(-convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK,odo.getXYT()[2]), true);
+	    //rightMotor.rotate(convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK,odo.getXYT()[2]), false);
+	    carStop();
+	    gyroFetch();
+	    //go to the 
+			
+	  }
   /**
     * go to origin by use the method from Lab3 Navigation class.
     */
@@ -168,6 +268,8 @@ public class LightLocalizer {
     //back to 0 degree orientation
     leftMotor.rotate(-convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK,odo.getXYT()[2]), true);
     rightMotor.rotate(convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK,odo.getXYT()[2]), false);
+    carStop();
+    gyroFetch();
   }
   /**
     * if we need to find a place which could get 4 line ,we need to close to the origin which is intersection of x,y axis, 
@@ -215,6 +317,9 @@ public class LightLocalizer {
     this.sampleProviderLight.fetchSample(lightValues,0);
     curColor = 100*(average(lightValues));
     this.results[j % size] = curColor;
+    oldValues = newValues;
+    newValues = curColor;
+    System.out.println(results[j%size]);
     j++;		
   }
   /**
@@ -238,11 +343,13 @@ public class LightLocalizer {
   private  boolean meetBlackline() {
     getData();
     System.out.println();
-    return (this.results[size - 1] -this. results[0]) < -5.0;
+   // return (this.results[size - 1] -this. results[0]) < -10.0;
+    return newValues - oldValues < -10.0;
   }
   private  boolean meetBlacklineWithoutGet() {	
     System.out.println();
-    return (this.results[size -1] - this.results[0]) < -5.0;
+    //return (this.results[size -1] - this.results[0]) < -10.0;
+    return newValues - oldValues < -10.0;
   }
   /**
    * the method from last lab
@@ -344,6 +451,9 @@ public class LightLocalizer {
 	  this.gyAngles.fetchSample(angles, 0);
 	  angleCorrection();
 	  return odo.getXYT()[2];
+  }
+  public void closeSensor() {
+	  this.lightSensor.close();
   }
   private void angleCorrection() {
 	  gyAngles.fetchSample(angles, 0);
