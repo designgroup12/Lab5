@@ -23,8 +23,8 @@ public class Lab5 {
   new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
   private static final Port usPort = LocalEV3.get().getPort("S1"); //port for the Ultrasonic Sensor
   private static final TextLCD lcd = LocalEV3.get().getTextLCD();
-  public static final double WHEEL_RAD = 2.11;
-  public static final double TRACK = 13.6 ;
+  public static final double WHEEL_RAD = 2.10;
+  public static final double TRACK = 14.0 ;
   public static final double tileSize = 30.48;
   
   public static final int[] LL = {3,3};
